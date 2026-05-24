@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""SR860 backend adapter placeholder."""
 
 from __future__ import annotations
 

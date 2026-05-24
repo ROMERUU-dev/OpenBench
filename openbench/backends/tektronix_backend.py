@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""Tektronix TBS1000C backend adapter placeholder."""
 
 from __future__ import annotations
 

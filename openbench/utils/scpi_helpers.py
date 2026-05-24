@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""SCPI helper namespace for instrument adapters."""
 
 from __future__ import annotations
 

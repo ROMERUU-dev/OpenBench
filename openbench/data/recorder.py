@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""Measurement recorder namespace."""
 
 from __future__ import annotations
 

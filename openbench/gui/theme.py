@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""GUI theme constants and helpers."""
 
 from __future__ import annotations
 

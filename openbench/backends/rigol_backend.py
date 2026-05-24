@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""Rigol oscilloscope backend adapter placeholder."""
 
 from __future__ import annotations
 

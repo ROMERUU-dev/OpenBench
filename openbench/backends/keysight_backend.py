@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""Keysight E36312A backend adapter placeholder."""
 
 from __future__ import annotations
 

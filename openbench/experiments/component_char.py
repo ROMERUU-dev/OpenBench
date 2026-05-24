@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""Component characterization experiment namespace."""
 
 from __future__ import annotations
 

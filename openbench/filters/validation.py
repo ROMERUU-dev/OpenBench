@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""Measured-versus-theoretical filter validation namespace."""
 
 from __future__ import annotations
 

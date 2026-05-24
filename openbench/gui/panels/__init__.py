@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""CustomTkinter panels for OpenBench workflows."""
 
 from __future__ import annotations
 

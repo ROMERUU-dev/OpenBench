@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""DC sweep experiment namespace."""
 
 from __future__ import annotations
 

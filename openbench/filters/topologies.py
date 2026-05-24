@@ -1,4 +1,4 @@
-"""Reusable experiment definitions for OpenBench workflows."""
+"""Filter topology definitions for SOFIA integration."""
 
 from __future__ import annotations
 
