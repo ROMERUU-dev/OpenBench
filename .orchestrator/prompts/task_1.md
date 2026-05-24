@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Verificar y actualizar README.md con descripción completa**
+**Crear estructura completa de carpetas y __init__.py**
 
 ## Fase actual
 `1-setup`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[1-setup] Verificar y actualizar README.md con descripción completa
+[1-setup] Crear estructura completa de carpetas y __init__.py
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
