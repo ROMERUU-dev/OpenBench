@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Definir IDCSupply interface (set_voltage, set_current, sweep)**
+**Definir IImpedanceAnalyzer interface (measure_at_freq, sweep)**
 
 ## Fase actual
 `2-core`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[2-core] Definir IDCSupply interface (set_voltage, set_current, sweep)
+[2-core] Definir IImpedanceAnalyzer interface (measure_at_freq, sweep)
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
