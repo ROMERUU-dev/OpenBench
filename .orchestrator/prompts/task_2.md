@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Definir IOscilloscope interface (acquire, trigger, channels)**
+**Definir IFunctionGenerator interface (waveform, sweep, modulation)**
 
 ## Fase actual
 `2-core`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[2-core] Definir IOscilloscope interface (acquire, trigger, channels)
+[2-core] Definir IFunctionGenerator interface (waveform, sweep, modulation)
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
