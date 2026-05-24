@@ -7,8 +7,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import StrEnum
 from types import TracebackType
+from typing import Any
 
 logger = logging.getLogger(__name__)
+InstrumentChannel = str | int
 
 
 class InstrumentStatus(StrEnum):
@@ -163,3 +165,125 @@ class IInstrument(ABC):
     @abstractmethod
     def _disconnect(self) -> None:
         """Close backend-specific hardware or library resources."""
+
+
+@dataclass(frozen=True)
+class DCSweepPoint:
+    """Single DC supply sweep setpoint.
+
+    Attributes:
+        channel: Backend-specific output channel identifier, commonly 1, 2, 3,
+            "CH1", or a named rail.
+        voltage_v: Voltage setpoint in volts.
+        current_limit_a: Optional current compliance limit in amperes. When
+            None, the backend keeps the channel current limit unchanged.
+        dwell_s: Settling time in seconds after applying this setpoint.
+    """
+
+    channel: InstrumentChannel
+    voltage_v: float
+    current_limit_a: float | None = None
+    dwell_s: float = 0.0
+
+
+@dataclass(frozen=True)
+class DCSweepReading:
+    """Measured or simulated result for one DC supply sweep point.
+
+    Attributes:
+        channel: Backend-specific output channel identifier.
+        voltage_setpoint_v: Requested voltage setpoint in volts.
+        current_limit_a: Current compliance limit in amperes used for the point,
+            when known.
+        measured_voltage_v: Measured output voltage in volts, when the backend
+            can report it.
+        measured_current_a: Measured output current in amperes, when the backend
+            can report it.
+        metadata: Optional backend-specific details such as protection state,
+            range, timestamp, or raw driver payload.
+    """
+
+    channel: InstrumentChannel
+    voltage_setpoint_v: float
+    current_limit_a: float | None = None
+    measured_voltage_v: float | None = None
+    measured_current_a: float | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+class IDCSupply(IInstrument, ABC):
+    """Abstract interface for programmable DC power supplies.
+
+    Backends implement this contract by wrapping their existing driver library
+    instead of reimplementing instrument communication. All values use SI units
+    so experiments can coordinate Keysight, VirtualBench, and simulation
+    backends without driver-specific conversions in experiment code.
+    """
+
+    @abstractmethod
+    def set_voltage(self, channel: InstrumentChannel, voltage_v: float) -> None:
+        """Set the output voltage for a DC supply channel.
+
+        Args:
+            channel: Backend-specific output channel identifier.
+            voltage_v: Voltage setpoint in volts.
+
+        Raises:
+            ValueError: If the channel or voltage is outside backend limits.
+            Exception: Propagates backend communication failures.
+        """
+
+    @abstractmethod
+    def set_current(self, channel: InstrumentChannel, current_a: float) -> None:
+        """Set the current compliance limit for a DC supply channel.
+
+        Args:
+            channel: Backend-specific output channel identifier.
+            current_a: Current limit in amperes.
+
+        Raises:
+            ValueError: If the channel or current is outside backend limits.
+            Exception: Propagates backend communication failures.
+        """
+
+    @abstractmethod
+    def sweep(
+        self,
+        channel: InstrumentChannel,
+        start_v: float,
+        stop_v: float,
+        step_v: float,
+        *,
+        current_limit_a: float | None = None,
+        dwell_s: float = 0.0,
+    ) -> list[DCSweepReading]:
+        """Sweep a DC supply channel across voltage setpoints.
+
+        Args:
+            channel: Backend-specific output channel identifier.
+            start_v: First voltage setpoint in volts.
+            stop_v: Final voltage boundary in volts.
+            step_v: Voltage step in volts. The sign determines sweep direction.
+            current_limit_a: Optional current compliance limit in amperes to
+                apply before or during the sweep.
+            dwell_s: Settling time in seconds after each setpoint.
+
+        Returns:
+            Ordered readings for each applied setpoint. Simulated backends may
+            mirror setpoints into measured values.
+
+        Raises:
+            ValueError: If sweep parameters are invalid or outside backend
+                limits.
+            Exception: Propagates backend communication failures.
+        """
+
+
+__all__ = [
+    "DCSweepPoint",
+    "DCSweepReading",
+    "IDCSupply",
+    "IInstrument",
+    "InstrumentChannel",
+    "InstrumentStatus",
+]
