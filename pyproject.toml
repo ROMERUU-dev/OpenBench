@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openbench"
+version = "0.1.0"
+description = "Lab instrument orchestration platform with modern GUI"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "ROMERUU-dev"}]
+keywords = ["instrumentation", "scpi", "lab", "oscilloscope", "measurement"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "pyvisa>=1.13",
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "pyyaml>=6.0",
+    "customtkinter>=5.2",
+    "h5py>=3.9",
+    "scipy>=1.11",
+    "Pillow>=10.0",
+    "darkdetect>=0.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.10",
+    "ruff>=0.1",
+    "black>=23.0",
+    "mypy>=1.5",
+]
+hardware = [
+    "pyvisa-py>=0.7",
+    "pyusb>=1.2",
+    "pyserial>=3.5",
+]
+backends = [
+    "vbarrido-py",
+    "sr860-impedance-workbench",
+    "keysight-e36312a-dcsweep",
+]
+
+[project.urls]
+Homepage = "https://github.com/ROMERUU-dev/OpenBench"
+Repository = "https://github.com/ROMERUU-dev/OpenBench"
+Issues = "https://github.com/ROMERUU-dev/OpenBench/issues"
+
+[project.scripts]
+openbench = "openbench.cli:main"
+openbench-gui = "openbench.gui.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["openbench*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
