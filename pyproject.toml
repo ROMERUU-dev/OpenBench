@@ -55,6 +55,9 @@ backends = [
     "sr860-impedance-workbench",
     "keysight-e36312a-dcsweep",
 ]
+filters = [
+    "sofia-filter-studio @ file:///home/romeruu/sofia-modern",
+]
 
 [project.urls]
 Homepage = "https://github.com/ROMERUU-dev/OpenBench"
