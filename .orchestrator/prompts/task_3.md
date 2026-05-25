@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Crear backend wrapper para sr860-impedance-workbench**
+**Crear backend wrapper para keysight_E36312A_DCSweep**
 
 ## Fase actual
 `3-backends`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[3-backends] Crear backend wrapper para sr860-impedance-workbench
+[3-backends] Crear backend wrapper para keysight_E36312A_DCSweep
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
