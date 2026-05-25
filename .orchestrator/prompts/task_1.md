@@ -10,10 +10,10 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Crear backend wrapper para tektronix-tbs1000c-linux**
+**Integrar SOFIA como openbench.filters module**
 
 ## Fase actual
-`3-backends`
+`4-sofia`
 
 ## Requisitos
 1. Implementa la tarea completamente y profesionalmente
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[3-backends] Crear backend wrapper para tektronix-tbs1000c-linux
+[4-sofia] Integrar SOFIA como openbench.filters module
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
