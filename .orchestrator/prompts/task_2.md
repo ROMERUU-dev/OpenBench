@@ -10,10 +10,10 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Implementar Plotter con templates por tipo de experimento**
+**Setup CustomTkinter base con theme manager dark/light**
 
 ## Fase actual
-`6-data`
+`7-gui`
 
 ## Requisitos
 1. Implementa la tarea completamente y profesionalmente
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[6-data] Implementar Plotter con templates por tipo de experimento
+[7-gui] Setup CustomTkinter base con theme manager dark/light
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
