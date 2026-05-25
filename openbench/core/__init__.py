@@ -14,7 +14,14 @@ from openbench.core.interfaces import (
     InstrumentStatus,
 )
 from openbench.core.orchestrator import InstrumentOrchestrator
-from openbench.core.session import MeasurementSession
+from openbench.core.session import (
+    MeasurementSession,
+    SessionArtifact,
+    SessionEvent,
+    SessionManager,
+    SessionState,
+    capture_reproducibility_snapshot,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,4 +38,9 @@ __all__ = [
     "InstrumentOrchestrator",
     "InstrumentStatus",
     "MeasurementSession",
+    "SessionArtifact",
+    "SessionEvent",
+    "SessionManager",
+    "SessionState",
+    "capture_reproducibility_snapshot",
 ]
