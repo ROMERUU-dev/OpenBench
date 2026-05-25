@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Implementar MainWindow con sidebar y content area**
+**Implementar DashboardPanel (vista general instrumentos)**
 
 ## Fase actual
 `7-gui`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[7-gui] Implementar MainWindow con sidebar y content area
+[7-gui] Implementar DashboardPanel (vista general instrumentos)
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
