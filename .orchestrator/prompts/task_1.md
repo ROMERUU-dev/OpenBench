@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Implementar DataRecorder con CSV + JSON metadata**
+**Implementar HDF5 export para datasets grandes**
 
 ## Fase actual
 `6-data`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[6-data] Implementar DataRecorder con CSV + JSON metadata
+[6-data] Implementar HDF5 export para datasets grandes
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
