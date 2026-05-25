@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Integrar SOFIA como openbench.filters module**
+**Crear FilterDesignExperiment que valida diseño con medición real**
 
 ## Fase actual
 `4-sofia`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[4-sofia] Integrar SOFIA como openbench.filters module
+[4-sofia] Crear FilterDesignExperiment que valida diseño con medición real
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
