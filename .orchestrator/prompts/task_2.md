@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Diseñar tema visual 2026 (colores, fuentes, spacing)**
+**Implementar MainWindow con sidebar y content area**
 
 ## Fase actual
 `7-gui`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[7-gui] Diseñar tema visual 2026 (colores, fuentes, spacing)
+[7-gui] Implementar MainWindow con sidebar y content area
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
