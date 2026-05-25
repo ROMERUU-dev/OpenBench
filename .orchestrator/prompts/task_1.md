@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Implementar FilterDesignPanel (SOFIA integrado en GUI)**
+**Implementar SessionHistoryPanel para revisar mediciones**
 
 ## Fase actual
 `7-gui`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[7-gui] Implementar FilterDesignPanel (SOFIA integrado en GUI)
+[7-gui] Implementar SessionHistoryPanel para revisar mediciones
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
