@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 try:
     from openbench.gui.panels.content_area import ContentArea
     from openbench.gui.panels.content_panel import ContentPanel
+    from openbench.gui.panels.dashboard_panel import DashboardPanel
     from openbench.gui.panels.data_panel import DataPanel
     from openbench.gui.panels.experiments_panel import ExperimentsPanel
     from openbench.gui.panels.filters_panel import FiltersPanel
@@ -20,6 +21,7 @@ try:
     __all__ = [
         "ContentArea",
         "ContentPanel",
+        "DashboardPanel",
         "DataPanel",
         "ExperimentsPanel",
         "FiltersPanel",

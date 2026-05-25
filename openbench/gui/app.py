@@ -8,6 +8,7 @@ import customtkinter as ctk
 
 from openbench.gui.panels.content_area import ContentArea
 from openbench.gui.panels.content_panel import ContentPanel
+from openbench.gui.panels.dashboard_panel import DashboardPanel
 from openbench.gui.panels.data_panel import DataPanel
 from openbench.gui.panels.experiments_panel import ExperimentsPanel
 from openbench.gui.panels.filters_panel import FiltersPanel
@@ -29,6 +30,7 @@ _WINDOW_DEFAULT_H = 780
 # Registry mapping ContentArea group keys to panel classes.
 _PANEL_REGISTRY: dict[str, type[ContentPanel]] = {
     "welcome": WelcomePanel,
+    "dashboard": DashboardPanel,
     "instruments": InstrumentsPanel,
     "experiments": ExperimentsPanel,
     "filters": FiltersPanel,
@@ -37,7 +39,7 @@ _PANEL_REGISTRY: dict[str, type[ContentPanel]] = {
 
 # Maps each sidebar item key to a ContentArea group key.
 _KEY_TO_GROUP: dict[str, str] = {
-    "instruments_overview": "instruments",
+    "instruments_overview": "dashboard",
     "instruments_vb": "instruments",
     "instruments_sr860": "instruments",
     "instruments_keysight": "instruments",
