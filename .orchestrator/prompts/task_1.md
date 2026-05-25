@@ -10,10 +10,10 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Implementar Session manager con metadata y reproducibilidad**
+**Crear backend wrapper para rigol_ds1000e_python**
 
 ## Fase actual
-`2-core`
+`3-backends`
 
 ## Requisitos
 1. Implementa la tarea completamente y profesionalmente
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[2-core] Implementar Session manager con metadata y reproducibilidad
+[3-backends] Crear backend wrapper para rigol_ds1000e_python
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
