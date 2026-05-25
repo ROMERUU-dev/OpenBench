@@ -14,6 +14,7 @@ from openbench.gui.panels.experiments_panel import ExperimentsPanel
 from openbench.gui.panels.filters_panel import FiltersPanel
 from openbench.gui.panels.header import HeaderBar
 from openbench.gui.panels.instruments_panel import InstrumentsPanel
+from openbench.gui.panels.live_plot_panel import LivePlotPanel
 from openbench.gui.panels.sidebar import SidebarItem, SidebarPanel, SidebarSection
 from openbench.gui.panels.welcome_panel import WelcomePanel
 from openbench.gui.theme import theme_manager
@@ -35,6 +36,7 @@ _PANEL_REGISTRY: dict[str, type[ContentPanel]] = {
     "experiments": ExperimentsPanel,
     "filters": FiltersPanel,
     "data": DataPanel,
+    "live_plot": LivePlotPanel,
 }
 
 # Maps each sidebar item key to a ContentArea group key.
@@ -51,7 +53,7 @@ _KEY_TO_GROUP: dict[str, str] = {
     "filter_design": "filters",
     "filter_validation": "filters",
     "data_sessions": "data",
-    "data_plots": "data",
+    "data_plots": "live_plot",
 }
 
 _DEFAULT_SECTIONS: list[SidebarSection] = [
