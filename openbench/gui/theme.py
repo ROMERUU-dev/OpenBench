@@ -8,9 +8,12 @@ to theme-change events without coupling to the CTk internals.
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Callable, Literal
 
 logger = logging.getLogger(__name__)
+
+_THEME_JSON = Path(__file__).parent / "assets" / "openbench_theme.json"
 
 ThemeMode = Literal["dark", "light", "system"]
 EffectiveMode = Literal["dark", "light"]
@@ -63,6 +66,29 @@ PALETTE: dict[str, dict[str, str]] = {
     },
 }
 
+# Spacing tokens (pixels) — xs→3xl covers all layout gaps and padding.
+SPACING: dict[str, int] = {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "base": 16,
+    "lg": 24,
+    "xl": 32,
+    "2xl": 48,
+    "3xl": 64,
+}
+
+# Border-radius tokens (pixels) — matches the CTK corner_radius values in the theme JSON.
+RADIUS: dict[str, int] = {
+    "none": 0,
+    "sm": 4,
+    "md": 8,
+    "lg": 12,
+    "xl": 16,
+    "2xl": 20,
+    "full": 1000,
+}
+
 # Typography tokens.
 FONTS: dict[str, str | int] = {
     "family_primary": "Inter",
@@ -79,48 +105,6 @@ FONTS: dict[str, str | int] = {
     "size_3xl": 30,
     "weight_normal": "normal",
     "weight_bold": "bold",
-}
-
-# CustomTkinter color-theme override injected at startup.
-_CTK_THEME_OVERRIDES: dict[str, dict[str, list[str]]] = {
-    "CTkButton": {
-        "fg_color": ["#0284c7", "#00d4ff"],
-        "hover_color": ["#0369a1", "#38bdf8"],
-        "text_color": ["#ffffff", "#0f172a"],
-        "border_color": ["#0284c7", "#00d4ff"],
-    },
-    "CTkFrame": {
-        "fg_color": ["#f1f5f9", "#16213e"],
-        "border_color": ["#e2e8f0", "#334155"],
-    },
-    "CTkEntry": {
-        "fg_color": ["#ffffff", "#1e293b"],
-        "border_color": ["#e2e8f0", "#334155"],
-        "text_color": ["#0f172a", "#e2e8f0"],
-    },
-    "CTkLabel": {
-        "text_color": ["#0f172a", "#e2e8f0"],
-    },
-    "CTkScrollableFrame": {
-        "fg_color": ["#f1f5f9", "#16213e"],
-        "label_fg_color": ["#f1f5f9", "#16213e"],
-    },
-    "CTkSegmentedButton": {
-        "fg_color": ["#e2e8f0", "#0f172a"],
-        "selected_color": ["#0284c7", "#00d4ff"],
-        "selected_hover_color": ["#0369a1", "#38bdf8"],
-        "unselected_color": ["#e2e8f0", "#0f172a"],
-        "unselected_hover_color": ["#cbd5e1", "#1e293b"],
-        "text_color": ["#0f172a", "#e2e8f0"],
-        "text_color_disabled": ["#94a3b8", "#64748b"],
-    },
-    "CTkSwitch": {
-        "fg_color": ["#e2e8f0", "#334155"],
-        "progress_color": ["#0284c7", "#00d4ff"],
-        "button_color": ["#ffffff", "#e2e8f0"],
-        "button_hover_color": ["#f1f5f9", "#f8fafc"],
-        "text_color": ["#0f172a", "#e2e8f0"],
-    },
 }
 
 
@@ -215,6 +199,28 @@ class ThemeManager:
         """
         return FONTS.get(key, "")
 
+    def get_spacing(self, key: str) -> int:
+        """Return a spacing token in pixels.
+
+        Args:
+            key: Token name such as ``"base"``, ``"sm"``, or ``"xl"``.
+
+        Returns:
+            Integer pixel value, or 0 if the key is unknown.
+        """
+        return SPACING.get(key, 0)
+
+    def get_radius(self, key: str) -> int:
+        """Return a border-radius token in pixels.
+
+        Args:
+            key: Token name such as ``"md"``, ``"lg"``, or ``"full"``.
+
+        Returns:
+            Integer pixel value, or 0 if the key is unknown.
+        """
+        return RADIUS.get(key, 0)
+
     def on_theme_change(self, callback: Callable[[EffectiveMode], None]) -> None:
         """Register a callback invoked when the effective mode changes.
 
@@ -240,13 +246,18 @@ class ThemeManager:
     # ------------------------------------------------------------------
 
     def _try_configure_ctk(self) -> None:
-        """Initialize CustomTkinter with the default appearance and color theme."""
+        """Initialize CustomTkinter with the OpenBench appearance and color theme."""
         try:
             import customtkinter as ctk  # noqa: PLC0415
 
             self._effective = self._resolve(self._mode)
             ctk.set_appearance_mode(self._effective)
-            ctk.set_default_color_theme("blue")
+            if _THEME_JSON.exists():
+                ctk.set_default_color_theme(str(_THEME_JSON))
+                logger.debug("Loaded OpenBench CTK theme from %s", _THEME_JSON)
+            else:
+                ctk.set_default_color_theme("blue")
+                logger.warning("Theme JSON not found at %s; falling back to 'blue'", _THEME_JSON)
             self._ctk_ready = True
             logger.debug("CustomTkinter configured (mode=%s)", self._effective)
         except ImportError:
@@ -313,5 +324,7 @@ __all__ = [
     "EffectiveMode",
     "PALETTE",
     "FONTS",
+    "SPACING",
+    "RADIUS",
     "theme_manager",
 ]

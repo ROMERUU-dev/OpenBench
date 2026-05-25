@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from openbench.gui.theme import FONTS, PALETTE, ThemeManager
+from openbench.gui.theme import FONTS, PALETTE, RADIUS, SPACING, ThemeManager
 
 
 # ---------------------------------------------------------------------------
@@ -36,6 +36,103 @@ def test_palette_all_values_are_hex_strings() -> None:
 def test_fonts_has_expected_keys() -> None:
     required = {"family_primary", "family_fallback", "family_mono", "size_base", "size_lg"}
     assert required.issubset(set(FONTS.keys()))
+
+
+# ---------------------------------------------------------------------------
+# Spacing tokens
+# ---------------------------------------------------------------------------
+
+
+def test_spacing_has_expected_keys() -> None:
+    required = {"xs", "sm", "md", "base", "lg", "xl", "2xl", "3xl"}
+    assert required.issubset(set(SPACING.keys()))
+
+
+def test_spacing_values_are_positive_ints() -> None:
+    for key, value in SPACING.items():
+        assert isinstance(value, int), f"SPACING[{key!r}] is not an int"
+        assert value > 0, f"SPACING[{key!r}] must be > 0"
+
+
+def test_spacing_ordered_ascending() -> None:
+    ordered = ["xs", "sm", "md", "base", "lg", "xl", "2xl", "3xl"]
+    values = [SPACING[k] for k in ordered]
+    assert values == sorted(values), "SPACING keys must be in ascending order"
+
+
+# ---------------------------------------------------------------------------
+# Radius tokens
+# ---------------------------------------------------------------------------
+
+
+def test_radius_has_expected_keys() -> None:
+    required = {"none", "sm", "md", "lg", "xl", "full"}
+    assert required.issubset(set(RADIUS.keys()))
+
+
+def test_radius_none_is_zero() -> None:
+    assert RADIUS["none"] == 0
+
+
+def test_radius_full_is_large() -> None:
+    assert RADIUS["full"] >= 1000
+
+
+def test_radius_values_are_non_negative_ints() -> None:
+    for key, value in RADIUS.items():
+        assert isinstance(value, int), f"RADIUS[{key!r}] is not an int"
+        assert value >= 0, f"RADIUS[{key!r}] must be >= 0"
+
+
+# ---------------------------------------------------------------------------
+# ThemeManager spacing / radius accessors
+# ---------------------------------------------------------------------------
+
+
+def test_get_spacing_known_key() -> None:
+    mgr = _make_manager()
+    assert mgr.get_spacing("base") == SPACING["base"]
+
+
+def test_get_spacing_unknown_key_returns_zero() -> None:
+    mgr = _make_manager()
+    assert mgr.get_spacing("nonexistent_spacing_xyz") == 0
+
+
+def test_get_radius_known_key() -> None:
+    mgr = _make_manager()
+    assert mgr.get_radius("md") == RADIUS["md"]
+
+
+def test_get_radius_unknown_key_returns_zero() -> None:
+    mgr = _make_manager()
+    assert mgr.get_radius("nonexistent_radius_xyz") == 0
+
+
+# ---------------------------------------------------------------------------
+# Theme JSON asset
+# ---------------------------------------------------------------------------
+
+
+def test_theme_json_exists() -> None:
+    from pathlib import Path
+
+    from openbench.gui.theme import _THEME_JSON
+
+    assert Path(_THEME_JSON).exists(), f"CTK theme JSON not found at {_THEME_JSON}"
+
+
+def test_theme_json_is_valid() -> None:
+    import json
+    from pathlib import Path
+
+    from openbench.gui.theme import _THEME_JSON
+
+    with Path(_THEME_JSON).open() as fh:
+        data = json.load(fh)
+    assert "CTkButton" in data
+    assert "CTkFrame" in data
+    assert "CTkLabel" in data
 
 
 # ---------------------------------------------------------------------------
