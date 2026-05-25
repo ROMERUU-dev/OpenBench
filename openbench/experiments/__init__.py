@@ -4,6 +4,11 @@ from __future__ import annotations
 
 import logging
 
+from openbench.experiments.chua_admittance import (
+    ChuaAdmittancePoint,
+    ChuaAdmittanceSweep,
+    ChuaAdmittanceSweepConfig,
+)
 from openbench.experiments.component_char import (
     InductorCharacterization,
     InductorCharacterizationConfig,
@@ -16,6 +21,9 @@ from openbench.experiments.component_char import (
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "ChuaAdmittancePoint",
+    "ChuaAdmittanceSweep",
+    "ChuaAdmittanceSweepConfig",
     "InductorCharacterization",
     "InductorCharacterizationConfig",
     "InductorCharacterizationPoint",
