@@ -78,7 +78,7 @@ class FilterDesignExperimentConfig:
     tolerance_db: float = 3.0
 
 
-@dataclass
+@dataclass(kw_only=True)
 class FilterDesignExperiment(BaseExperiment):
     """Design and hardware-validate an active filter in one workflow.
 

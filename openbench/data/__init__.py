@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 
+from openbench.data.recorder import DataRecord, DataRecorder
+
 logger = logging.getLogger(__name__)
 
-__all__ = ["logger"]
+__all__ = ["DataRecord", "DataRecorder", "logger"]
