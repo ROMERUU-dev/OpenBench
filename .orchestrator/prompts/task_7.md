@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Implementar TC4069UBPCharacterization experiment**
+**Implementar InductorCharacterization experiment (SR860 sweep)**
 
 ## Fase actual
 `5-exp`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[5-exp] Implementar TC4069UBPCharacterization experiment
+[5-exp] Implementar InductorCharacterization experiment (SR860 sweep)
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
