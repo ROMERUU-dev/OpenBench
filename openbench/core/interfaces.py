@@ -45,6 +45,13 @@ class IInstrument(ABC):
     _status: InstrumentStatus = field(default=InstrumentStatus.DISCONNECTED, init=False)
     _last_error: Exception | None = field(default=None, init=False, repr=False)
 
+    def __post_init__(self) -> None:
+        """Subclass initialization hook called after the dataclass ``__init__``.
+
+        Override in concrete adapters to initialize backend-specific state
+        without re-defining ``__init__``.  The base implementation is a no-op.
+        """
+
     def connect(self) -> None:
         """Connect to the underlying instrument or backend.
 
