@@ -7,12 +7,26 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
+    from openbench.gui.panels.content_area import ContentArea
+    from openbench.gui.panels.content_panel import ContentPanel
+    from openbench.gui.panels.data_panel import DataPanel
+    from openbench.gui.panels.experiments_panel import ExperimentsPanel
+    from openbench.gui.panels.filters_panel import FiltersPanel
     from openbench.gui.panels.header import HeaderBar
+    from openbench.gui.panels.instruments_panel import InstrumentsPanel
     from openbench.gui.panels.sidebar import SidebarPanel
+    from openbench.gui.panels.welcome_panel import WelcomePanel
 
     __all__ = [
+        "ContentArea",
+        "ContentPanel",
+        "DataPanel",
+        "ExperimentsPanel",
+        "FiltersPanel",
         "HeaderBar",
+        "InstrumentsPanel",
         "SidebarPanel",
+        "WelcomePanel",
         "logger",
     ]
 except ImportError:
