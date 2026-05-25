@@ -5,6 +5,9 @@ from __future__ import annotations
 import logging
 
 from openbench.experiments.component_char import (
+    InductorCharacterization,
+    InductorCharacterizationConfig,
+    InductorCharacterizationPoint,
     TC4069UBPCharacterization,
     TC4069UBPCharacterizationConfig,
     TC4069UBPPoint,
@@ -13,6 +16,9 @@ from openbench.experiments.component_char import (
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "InductorCharacterization",
+    "InductorCharacterizationConfig",
+    "InductorCharacterizationPoint",
     "TC4069UBPCharacterization",
     "TC4069UBPCharacterizationConfig",
     "TC4069UBPPoint",

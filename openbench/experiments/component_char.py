@@ -4,14 +4,24 @@ from __future__ import annotations
 
 import logging
 import math
+import statistics
 import time
 from dataclasses import dataclass, field
 from typing import Any
 
 from openbench.core.experiment import BaseExperiment
-from openbench.core.interfaces import IDCSupply, IOscilloscope, InstrumentChannel
+from openbench.core.interfaces import (
+    IDCSupply,
+    IImpedanceAnalyzer,
+    IOscilloscope,
+    ImpedancePoint,
+    InstrumentChannel,
+)
 
 logger = logging.getLogger(__name__)
+
+_SR860_MIN_SWEEP_HZ = 1e-3
+_SR860_MAX_SWEEP_HZ = 500_000.0
 
 
 @dataclass(frozen=True)
@@ -72,6 +82,76 @@ class TC4069UBPPoint:
     output_rms_v: float
     supply_current_a: float | None = None
     input_current_a: float | None = None
+
+
+@dataclass(frozen=True)
+class InductorCharacterizationConfig:
+    """Configuration for SR860-based inductor impedance characterization.
+
+    The default sweep targets the lab Chua inductor workflow: a wide log sweep
+    with SR860 sine excitation and a series-resistor divider impedance model.
+
+    Attributes:
+        start_hz: First sweep frequency in hertz.
+        stop_hz: Last sweep frequency in hertz.
+        num_points: Number of sweep points including endpoints.
+        excitation_v: SR860 SINE OUT amplitude in volts RMS.
+        log_scale: Use logarithmic spacing when True, linear spacing when False.
+        settle_periods: Lock-in settle periods per frequency point in hardware
+            mode. Simulation always runs with zero settle periods.
+        time_constant_s: Requested SR860 lock-in time constant in seconds.
+        series_resistor_ohm: External reference resistor in series with the DUT.
+        source_series_ohm: Source output impedance included in the divider model.
+        nominal_inductance_h: Optional expected inductance used for percent-error
+            reporting in the summary.
+        simulation_series_resistance_ohm: Series resistance used by the simulated
+            DUT when OpenBench owns the simulated SR860 backend.
+        simulation_inductance_h: Inductance used by the simulated DUT when
+            OpenBench owns the simulated SR860 backend.
+    """
+
+    start_hz: float = 100.0
+    stop_hz: float = 100_000.0
+    num_points: int = 30
+    excitation_v: float = 1.0
+    log_scale: bool = True
+    settle_periods: int = 5
+    time_constant_s: float = 0.1
+    series_resistor_ohm: float = 220.0
+    source_series_ohm: float = 50.0
+    nominal_inductance_h: float | None = None
+    simulation_series_resistance_ohm: float = 10.0
+    simulation_inductance_h: float = 44.4e-3
+
+
+@dataclass(frozen=True)
+class InductorCharacterizationPoint:
+    """Derived inductor quantities at one impedance sweep frequency.
+
+    Attributes:
+        frequency_hz: Stimulus frequency in hertz.
+        z_real_ohm: Real impedance component in ohms.
+        z_imag_ohm: Imaginary impedance component in ohms.
+        magnitude_ohm: Impedance magnitude in ohms.
+        phase_deg: Impedance phase angle in degrees.
+        equivalent_series_resistance_ohm: Apparent ESR from the real component.
+        inductance_h: Apparent inductance from ``X_L / (2*pi*f)``. Negative values
+            indicate capacitive behavior above self-resonance.
+        quality_factor: Apparent ``X_L / ESR`` when ESR is positive.
+        is_inductive: True when the imaginary component is positive.
+        metadata: Backend-specific raw details preserved from the measurement.
+    """
+
+    frequency_hz: float
+    z_real_ohm: float
+    z_imag_ohm: float
+    magnitude_ohm: float
+    phase_deg: float
+    equivalent_series_resistance_ohm: float
+    inductance_h: float
+    quality_factor: float | None
+    is_inductive: bool
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -360,7 +440,273 @@ class TC4069UBPCharacterization(BaseExperiment):
             enable(channel, enabled=enabled)
 
 
+@dataclass
+class InductorCharacterization(BaseExperiment):
+    """Characterize an inductor with an SR860/SR865 impedance frequency sweep.
+
+    The experiment composes the existing ``IImpedanceAnalyzer`` contract instead
+    of speaking SCPI directly. When no analyzer is injected it creates an
+    ``SR860Backend`` lazily, preserving standalone backend compatibility. In
+    simulation mode OpenBench owns a simulated SR860 backend and configures its
+    DUT model from ``InductorCharacterizationConfig``.
+
+    Attributes:
+        name: Human-readable experiment identifier.
+        config: Sweep and measurement configuration.
+        impedance_analyzer: Optional impedance analyzer adapter. If omitted, an
+            ``SR860Backend`` is created in ``setup()``.
+        simulate: When True, run the full experiment without touching hardware.
+    """
+
+    config: InductorCharacterizationConfig = field(
+        default_factory=InductorCharacterizationConfig
+    )
+    impedance_analyzer: IImpedanceAnalyzer | None = field(default=None, repr=False)
+
+    _owns_analyzer: bool = field(default=False, init=False, repr=False)
+
+    def validate(self) -> None:
+        """Validate sweep, excitation, and simulated DUT parameters.
+
+        Raises:
+            ValueError: If the configured characterization cannot be run safely.
+        """
+        cfg = self.config
+        if cfg.start_hz <= 0.0 or cfg.stop_hz <= 0.0:
+            raise ValueError("start_hz and stop_hz must be positive")
+        if cfg.stop_hz <= cfg.start_hz:
+            raise ValueError("stop_hz must be greater than start_hz")
+        if cfg.start_hz < _SR860_MIN_SWEEP_HZ or cfg.stop_hz > _SR860_MAX_SWEEP_HZ:
+            raise ValueError(
+                "SR860 sweep frequency range must stay within "
+                f"{_SR860_MIN_SWEEP_HZ:g} Hz to {_SR860_MAX_SWEEP_HZ:g} Hz"
+            )
+        if cfg.num_points < 2:
+            raise ValueError("num_points must be >= 2")
+        if cfg.num_points > 10_000:
+            raise ValueError("num_points is too large")
+        if cfg.excitation_v <= 0.0:
+            raise ValueError("excitation_v must be positive")
+        if cfg.settle_periods < 0:
+            raise ValueError("settle_periods must be >= 0")
+        if cfg.time_constant_s <= 0.0:
+            raise ValueError("time_constant_s must be positive")
+        if cfg.series_resistor_ohm <= 0.0:
+            raise ValueError("series_resistor_ohm must be positive")
+        if cfg.source_series_ohm < 0.0:
+            raise ValueError("source_series_ohm must be >= 0")
+        if cfg.nominal_inductance_h is not None and cfg.nominal_inductance_h <= 0.0:
+            raise ValueError("nominal_inductance_h must be positive when provided")
+        if cfg.simulation_series_resistance_ohm < 0.0:
+            raise ValueError("simulation_series_resistance_ohm must be >= 0")
+        if cfg.simulation_inductance_h <= 0.0:
+            raise ValueError("simulation_inductance_h must be positive")
+
+    def setup(self) -> None:
+        """Connect and configure the SR860-compatible impedance analyzer."""
+        cfg = self.config
+        if (
+            self._simulate
+            and self.impedance_analyzer is not None
+            and not getattr(self.impedance_analyzer, "simulate", False)
+        ):
+            logger.info("Ignoring injected hardware analyzer for simulation mode")
+            self.impedance_analyzer = None
+            self._owns_analyzer = False
+
+        if self.impedance_analyzer is None:
+            from openbench.backends.sr860_backend import SR860Backend
+
+            self.impedance_analyzer = SR860Backend(
+                name="sr860-inductor",
+                simulate=self._simulate,
+                series_resistor_ohm=cfg.series_resistor_ohm,
+                source_series_ohm=cfg.source_series_ohm,
+                excitation_v=cfg.excitation_v,
+                time_constant_s=cfg.time_constant_s,
+            )
+            self._owns_analyzer = True
+
+        self.impedance_analyzer.connect()
+        self._configure_analyzer()
+        logger.info("Inductor characterization analyzer configured")
+
+    def _run(self) -> dict[str, Any]:
+        """Execute the impedance sweep and derive inductor metrics.
+
+        Returns:
+            Dictionary containing raw points, derived summary, and sweep metadata.
+        """
+        analyzer = self.impedance_analyzer
+        if analyzer is None:
+            raise RuntimeError("An impedance analyzer is required")
+
+        cfg = self.config
+        settle_periods = 0 if self._simulate else cfg.settle_periods
+        self.report_progress("Starting SR860 inductor sweep", 0.0)
+        if self._abort_requested:
+            raise RuntimeError("aborted")
+
+        impedance_points = analyzer.sweep(
+            cfg.start_hz,
+            cfg.stop_hz,
+            cfg.num_points,
+            excitation_v=cfg.excitation_v,
+            log_scale=cfg.log_scale,
+            settle_periods=settle_periods,
+        )
+        if len(impedance_points) != cfg.num_points:
+            logger.warning(
+                "Inductor sweep returned %d/%d points",
+                len(impedance_points),
+                cfg.num_points,
+            )
+
+        points = [self._point_from_impedance(point) for point in impedance_points]
+        summary = self._summarize_points(points)
+        self.report_progress("SR860 inductor sweep complete", 1.0)
+
+        return {
+            "component": "inductor",
+            "points": [point.__dict__ for point in points],
+            "summary": summary,
+            "point_count": len(points),
+            "simulated": self._simulate,
+            "sweep": {
+                "start_hz": cfg.start_hz,
+                "stop_hz": cfg.stop_hz,
+                "num_points": cfg.num_points,
+                "log_scale": cfg.log_scale,
+                "excitation_v": cfg.excitation_v,
+                "settle_periods": settle_periods,
+            },
+        }
+
+    def teardown(self) -> None:
+        """Disconnect an analyzer created by this experiment."""
+        if self.impedance_analyzer is not None and self._owns_analyzer:
+            try:
+                self.impedance_analyzer.disconnect()
+            except Exception:
+                logger.warning(
+                    "Could not disconnect owned analyzer %s",
+                    self.impedance_analyzer.name,
+                    exc_info=True,
+                )
+
+    def _configure_analyzer(self) -> None:
+        cfg = self.config
+        analyzer = self.impedance_analyzer
+        if analyzer is None:
+            return
+
+        set_time_constant = getattr(analyzer, "set_time_constant", None)
+        if callable(set_time_constant):
+            set_time_constant(cfg.time_constant_s)
+
+        set_excitation = getattr(analyzer, "set_excitation", None)
+        if callable(set_excitation):
+            set_excitation(cfg.excitation_v)
+
+        if self._simulate:
+            set_sim_component = getattr(analyzer, "set_sim_component", None)
+            if callable(set_sim_component):
+                set_sim_component(
+                    cfg.simulation_series_resistance_ohm,
+                    l_h=cfg.simulation_inductance_h,
+                )
+
+    def _point_from_impedance(self, point: ImpedancePoint) -> InductorCharacterizationPoint:
+        omega = 2.0 * math.pi * point.frequency_hz
+        inductance_h = point.z_imag_ohm / omega if omega > 0.0 else math.nan
+        esr_ohm = point.z_real_ohm
+        quality_factor = point.z_imag_ohm / esr_ohm if esr_ohm > 0.0 else None
+        return InductorCharacterizationPoint(
+            frequency_hz=point.frequency_hz,
+            z_real_ohm=point.z_real_ohm,
+            z_imag_ohm=point.z_imag_ohm,
+            magnitude_ohm=point.magnitude_ohm,
+            phase_deg=point.phase_deg,
+            equivalent_series_resistance_ohm=esr_ohm,
+            inductance_h=inductance_h,
+            quality_factor=quality_factor,
+            is_inductive=point.z_imag_ohm > 0.0,
+            metadata=dict(point.metadata),
+        )
+
+    def _summarize_points(self, points: list[InductorCharacterizationPoint]) -> dict[str, Any]:
+        inductive = [
+            point
+            for point in points
+            if point.is_inductive and math.isfinite(point.inductance_h)
+        ]
+        inductances = [point.inductance_h for point in inductive]
+        series_resistances = [
+            point.equivalent_series_resistance_ohm
+            for point in points
+            if math.isfinite(point.equivalent_series_resistance_ohm)
+        ]
+        quality_factors = [
+            point.quality_factor
+            for point in inductive
+            if point.quality_factor is not None and math.isfinite(point.quality_factor)
+        ]
+
+        summary: dict[str, Any] = {
+            "inductive_point_count": len(inductive),
+            "inductance_h_mean": self._mean(inductances),
+            "inductance_h_median": self._median(inductances),
+            "inductance_h_std": self._stdev(inductances),
+            "series_resistance_ohm_mean": self._mean(series_resistances),
+            "series_resistance_ohm_median": self._median(series_resistances),
+            "quality_factor_mean": self._mean(quality_factors),
+            "quality_factor_max": max(quality_factors) if quality_factors else None,
+            "self_resonance_hz": self._estimate_self_resonance(points),
+        }
+
+        nominal = self.config.nominal_inductance_h
+        measured = summary["inductance_h_median"]
+        if nominal is not None and measured is not None:
+            summary["nominal_inductance_h"] = nominal
+            summary["nominal_error_percent"] = 100.0 * (measured - nominal) / nominal
+
+        return summary
+
+    def _estimate_self_resonance(
+        self, points: list[InductorCharacterizationPoint]
+    ) -> float | None:
+        ordered = sorted(points, key=lambda point: point.frequency_hz)
+        for left, right in zip(ordered, ordered[1:]):
+            if left.z_imag_ohm == 0.0:
+                return left.frequency_hz
+            if left.z_imag_ohm * right.z_imag_ohm <= 0.0:
+                span = right.z_imag_ohm - left.z_imag_ohm
+                if span == 0.0:
+                    return left.frequency_hz
+                ratio = -left.z_imag_ohm / span
+                return left.frequency_hz + ratio * (
+                    right.frequency_hz - left.frequency_hz
+                )
+        return None
+
+    def _mean(self, values: list[float]) -> float | None:
+        return statistics.fmean(values) if values else None
+
+    def _median(self, values: list[float]) -> float | None:
+        return statistics.median(values) if values else None
+
+    def _stdev(self, values: list[float]) -> float | None:
+        if not values:
+            return None
+        if len(values) == 1:
+            return 0.0
+        return statistics.stdev(values)
+
+
 __all__ = [
+    "InductorCharacterization",
+    "InductorCharacterizationConfig",
+    "InductorCharacterizationPoint",
     "TC4069UBPCharacterization",
     "TC4069UBPCharacterizationConfig",
     "TC4069UBPPoint",
