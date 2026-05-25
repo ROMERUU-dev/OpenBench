@@ -10,10 +10,10 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Crear FilterDesignExperiment que valida diseño con medición real**
+**Implementar DataRecorder con CSV + JSON metadata**
 
 ## Fase actual
-`4-sofia`
+`6-data`
 
 ## Requisitos
 1. Implementa la tarea completamente y profesionalmente
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[4-sofia] Crear FilterDesignExperiment que valida diseño con medición real
+[6-data] Implementar DataRecorder con CSV + JSON metadata
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
