@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Definir IImpedanceAnalyzer interface (measure_at_freq, sweep)**
+**Implementar Orchestrator con discovery y registro de instrumentos**
 
 ## Fase actual
 `2-core`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[2-core] Definir IImpedanceAnalyzer interface (measure_at_freq, sweep)
+[2-core] Implementar Orchestrator con discovery y registro de instrumentos
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
