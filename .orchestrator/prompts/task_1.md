@@ -10,10 +10,10 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Crear CHANGELOG.md inicial**
+**Implementar Session manager con metadata y reproducibilidad**
 
 ## Fase actual
-`1-setup`
+`2-core`
 
 ## Requisitos
 1. Implementa la tarea completamente y profesionalmente
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[1-setup] Crear CHANGELOG.md inicial
+[2-core] Implementar Session manager con metadata y reproducibilidad
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
