@@ -12,6 +12,7 @@ from openbench.data.plotter import (
     PlotTemplate,
 )
 from openbench.data.recorder import DataRecord, DataRecorder
+from openbench.utils.data_export import HDF5ExportRecord
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ __all__ = [
     "DataRecord",
     "DataRecorder",
     "ExperimentPlotter",
+    "HDF5ExportRecord",
     "PlotArtifact",
     "PlotSeries",
     "PlotTemplate",

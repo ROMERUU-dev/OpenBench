@@ -16,6 +16,12 @@ from typing import Any
 
 from openbench.core.experiment import ExperimentResult
 from openbench.core.session import MeasurementSession
+from openbench.utils.data_export import (
+    DEFAULT_HDF5_COMPRESSION,
+    DEFAULT_HDF5_COMPRESSION_OPTS,
+    HDF5ExportRecord,
+    export_hdf5,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +226,113 @@ class DataRecorder:
             fieldnames=fieldnames,
         )
 
+    def record_hdf5(
+        self,
+        name: str,
+        data: Any,
+        *,
+        metadata: Mapping[str, Any] | None = None,
+        fieldnames: Sequence[str] | None = None,
+        compression: str | None = DEFAULT_HDF5_COMPRESSION,
+        compression_opts: int | None = DEFAULT_HDF5_COMPRESSION_OPTS,
+        chunked: bool = True,
+        require_equal_length: bool = True,
+    ) -> HDF5ExportRecord:
+        """Persist large measurement data to HDF5.
+
+        Args:
+            name: Human-readable dataset name used in the HDF5 file name.
+            data: Column-oriented mapping, row-oriented iterable, dataclass, or
+                dataframe-like object to persist.
+            metadata: Extra metadata embedded in the HDF5 file.
+            fieldnames: Optional preferred field order.
+            compression: HDF5 compression filter for non-scalar datasets.
+            compression_opts: Optional compression level for gzip datasets.
+            chunked: Enable chunked HDF5 storage for non-scalar datasets.
+            require_equal_length: Require all non-scalar fields to share the
+                same first dimension.
+
+        Returns:
+            ``HDF5ExportRecord`` describing the written HDF5 file.
+        """
+
+        if not name.strip():
+            raise ValueError("Record name must not be empty.")
+
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        created_at = datetime.now(UTC)
+        base_name = self._unique_base_name(name, created_at)
+        hdf5_path = self.output_dir / f"{base_name}.h5"
+
+        merged_metadata: dict[str, Any] = dict(self.default_metadata)
+        if metadata is not None:
+            merged_metadata.update(_to_jsonable(metadata))
+
+        record = export_hdf5(
+            hdf5_path,
+            name,
+            data,
+            metadata=merged_metadata,
+            fieldnames=fieldnames,
+            compression=compression,
+            compression_opts=compression_opts,
+            chunked=chunked,
+            require_equal_length=require_equal_length,
+        )
+        self._register_hdf5_session_artifact(record)
+        return record
+
+    def record_experiment_result_hdf5(
+        self,
+        result: ExperimentResult,
+        *,
+        name: str | None = None,
+        metadata: Mapping[str, Any] | None = None,
+        fieldnames: Sequence[str] | None = None,
+        compression: str | None = DEFAULT_HDF5_COMPRESSION,
+        compression_opts: int | None = DEFAULT_HDF5_COMPRESSION_OPTS,
+        chunked: bool = True,
+        require_equal_length: bool = True,
+    ) -> HDF5ExportRecord:
+        """Persist an experiment result data payload to HDF5.
+
+        Args:
+            result: Result returned by ``BaseExperiment.run()``.
+            name: Optional output dataset name. Defaults to ``result.name``.
+            metadata: Extra metadata embedded after result metadata.
+            fieldnames: Optional preferred field order.
+            compression: HDF5 compression filter for non-scalar datasets.
+            compression_opts: Optional compression level for gzip datasets.
+            chunked: Enable chunked HDF5 storage for non-scalar datasets.
+            require_equal_length: Require all non-scalar fields to share the
+                same first dimension.
+
+        Returns:
+            ``HDF5ExportRecord`` for the HDF5 measurement file.
+        """
+
+        merged_metadata: dict[str, Any] = {
+            "experiment": result.name,
+            "state": result.state,
+            "duration_s": result.duration_s,
+            "result_metadata": result.metadata,
+        }
+        if result.error is not None:
+            merged_metadata["error"] = result.error
+        if metadata is not None:
+            merged_metadata.update(_to_jsonable(metadata))
+
+        return self.record_hdf5(
+            name or result.name,
+            result.data,
+            metadata=merged_metadata,
+            fieldnames=fieldnames,
+            compression=compression,
+            compression_opts=compression_opts,
+            chunked=chunked,
+            require_equal_length=require_equal_length,
+        )
+
     def record_measurement(
         self,
         name: str,
@@ -248,6 +361,47 @@ class DataRecorder:
             fieldnames=fieldnames,
         )
 
+    def record_measurement_hdf5(
+        self,
+        name: str,
+        measurement: object,
+        *,
+        metadata: Mapping[str, Any] | None = None,
+        fieldnames: Sequence[str] | None = None,
+        compression: str | None = DEFAULT_HDF5_COMPRESSION,
+        compression_opts: int | None = DEFAULT_HDF5_COMPRESSION_OPTS,
+        chunked: bool = True,
+        require_equal_length: bool = True,
+    ) -> HDF5ExportRecord:
+        """Persist one backend measurement object or list of them to HDF5.
+
+        Args:
+            name: Human-readable dataset name.
+            measurement: Instrument reading dataclass, mapping, or iterable of
+                readings.
+            metadata: Extra metadata embedded in the HDF5 file.
+            fieldnames: Optional preferred field order.
+            compression: HDF5 compression filter for non-scalar datasets.
+            compression_opts: Optional compression level for gzip datasets.
+            chunked: Enable chunked HDF5 storage for non-scalar datasets.
+            require_equal_length: Require all non-scalar fields to share the
+                same first dimension.
+
+        Returns:
+            ``HDF5ExportRecord`` for the measurement file.
+        """
+
+        return self.record_hdf5(
+            name,
+            measurement,
+            metadata=metadata,
+            fieldnames=fieldnames,
+            compression=compression,
+            compression_opts=compression_opts,
+            chunked=chunked,
+            require_equal_length=require_equal_length,
+        )
+
     def _unique_base_name(self, name: str, created_at: datetime) -> str:
         timestamp = created_at.strftime("%Y%m%dT%H%M%SZ")
         slug = _slugify(name)
@@ -257,6 +411,8 @@ class DataRecorder:
         while (
             (self.output_dir / f"{candidate}.csv").exists()
             or (self.output_dir / f"{candidate}.metadata.json").exists()
+            or (self.output_dir / f"{candidate}.h5").exists()
+            or (self.output_dir / f"{candidate}.hdf5").exists()
         ):
             index += 1
             candidate = f"{base}_{index}"
@@ -289,6 +445,31 @@ class DataRecorder:
                 "name": record.name,
                 "csv_path": record.csv_path.name,
                 "metadata_path": record.metadata_path.name,
+            },
+        )
+
+    def _register_hdf5_session_artifact(self, record: HDF5ExportRecord) -> None:
+        if self.session is None:
+            return
+
+        artifact_metadata = {
+            "record": record.name,
+            "row_count": record.row_count,
+            "fields": list(record.fields),
+            "sha256": record.sha256,
+            "compression": record.compression,
+        }
+        self.session.register_artifact(
+            record.hdf5_path,
+            kind="measurement_hdf5",
+            name=record.hdf5_path.name,
+            metadata=artifact_metadata,
+        )
+        self.session.record_event(
+            "hdf5_data_recorded",
+            {
+                "name": record.name,
+                "hdf5_path": record.hdf5_path.name,
             },
         )
 
