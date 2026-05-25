@@ -17,6 +17,7 @@ try:
     from openbench.gui.panels.instrument_setup_panel import InstrumentSetupPanel
     from openbench.gui.panels.instruments_panel import InstrumentsPanel
     from openbench.gui.panels.live_plot_panel import LivePlotPanel
+    from openbench.gui.panels.session_history_panel import SessionHistoryPanel
     from openbench.gui.panels.sidebar import SidebarPanel
     from openbench.gui.panels.welcome_panel import WelcomePanel
 
@@ -31,6 +32,7 @@ try:
         "InstrumentSetupPanel",
         "InstrumentsPanel",
         "LivePlotPanel",
+        "SessionHistoryPanel",
         "SidebarPanel",
         "WelcomePanel",
         "logger",

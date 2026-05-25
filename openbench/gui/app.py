@@ -16,6 +16,7 @@ from openbench.gui.panels.header import HeaderBar
 from openbench.gui.panels.instrument_setup_panel import InstrumentSetupPanel
 from openbench.gui.panels.instruments_panel import InstrumentsPanel
 from openbench.gui.panels.live_plot_panel import LivePlotPanel
+from openbench.gui.panels.session_history_panel import SessionHistoryPanel
 from openbench.gui.panels.sidebar import SidebarItem, SidebarPanel, SidebarSection
 from openbench.gui.panels.welcome_panel import WelcomePanel
 from openbench.gui.theme import theme_manager
@@ -38,6 +39,7 @@ _PANEL_REGISTRY: dict[str, type[ContentPanel]] = {
     "experiments": ExperimentsPanel,
     "filters": FiltersPanel,
     "data": DataPanel,
+    "session_history": SessionHistoryPanel,
     "live_plot": LivePlotPanel,
 }
 
@@ -57,7 +59,7 @@ _KEY_TO_GROUP: dict[str, str] = {
     "exp_comp_char": "experiments",
     "filter_design": "filters",
     "filter_validation": "filters",
-    "data_sessions": "data",
+    "data_sessions": "session_history",
     "data_plots": "live_plot",
 }
 
