@@ -10,10 +10,10 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Implementar Experiment base class con lifecycle hooks**
+**Implementar Plotter con templates por tipo de experimento**
 
 ## Fase actual
-`2-core`
+`6-data`
 
 ## Requisitos
 1. Implementa la tarea completamente y profesionalmente
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[2-core] Implementar Experiment base class con lifecycle hooks
+[6-data] Implementar Plotter con templates por tipo de experimento
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
