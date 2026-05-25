@@ -13,6 +13,7 @@ from openbench.gui.panels.data_panel import DataPanel
 from openbench.gui.panels.experiments_panel import ExperimentsPanel
 from openbench.gui.panels.filters_panel import FiltersPanel
 from openbench.gui.panels.header import HeaderBar
+from openbench.gui.panels.instrument_setup_panel import InstrumentSetupPanel
 from openbench.gui.panels.instruments_panel import InstrumentsPanel
 from openbench.gui.panels.live_plot_panel import LivePlotPanel
 from openbench.gui.panels.sidebar import SidebarItem, SidebarPanel, SidebarSection
@@ -32,6 +33,7 @@ _WINDOW_DEFAULT_H = 780
 _PANEL_REGISTRY: dict[str, type[ContentPanel]] = {
     "welcome": WelcomePanel,
     "dashboard": DashboardPanel,
+    "instrument_setup": InstrumentSetupPanel,
     "instruments": InstrumentsPanel,
     "experiments": ExperimentsPanel,
     "filters": FiltersPanel,
@@ -42,9 +44,12 @@ _PANEL_REGISTRY: dict[str, type[ContentPanel]] = {
 # Maps each sidebar item key to a ContentArea group key.
 _KEY_TO_GROUP: dict[str, str] = {
     "instruments_overview": "dashboard",
-    "instruments_vb": "instruments",
-    "instruments_sr860": "instruments",
-    "instruments_keysight": "instruments",
+    "instruments_setup": "instrument_setup",
+    "instruments_vb": "instrument_setup",
+    "instruments_sr860": "instrument_setup",
+    "instruments_keysight": "instrument_setup",
+    "instruments_rigol": "instrument_setup",
+    "instruments_tektronix": "instrument_setup",
     "exp_dc_sweep": "experiments",
     "exp_freq_sweep": "experiments",
     "exp_imp_sweep": "experiments",
@@ -61,9 +66,12 @@ _DEFAULT_SECTIONS: list[SidebarSection] = [
         title="Instruments",
         items=[
             SidebarItem(label="Overview", key="instruments_overview", icon="◈"),
+            SidebarItem(label="Setup Wizard", key="instruments_setup", icon="◇"),
             SidebarItem(label="VirtualBench", key="instruments_vb", icon="⬡"),
             SidebarItem(label="SR860 Lock-in", key="instruments_sr860", icon="⬡"),
             SidebarItem(label="Keysight DC", key="instruments_keysight", icon="⬡"),
+            SidebarItem(label="Rigol Scope", key="instruments_rigol", icon="⬡"),
+            SidebarItem(label="Tektronix Scope", key="instruments_tektronix", icon="⬡"),
         ],
     ),
     SidebarSection(
@@ -169,8 +177,8 @@ class OpenBenchApp(ctk.CTk):
 
     def _on_connect_clicked(self) -> None:
         logger.info("Connect button clicked")
-        self._status_bar.set_status("Scanning for instruments…")
-        self._content_area.navigate("instruments")
+        self._status_bar.set_status("Opening instrument setup…")
+        self._content_area.navigate("instrument_setup")
 
     def _on_theme_changed(self, mode: str) -> None:
         self.configure(fg_color=theme_manager.get_color("bg_primary"))

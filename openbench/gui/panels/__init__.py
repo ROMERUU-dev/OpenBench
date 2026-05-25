@@ -14,6 +14,7 @@ try:
     from openbench.gui.panels.experiments_panel import ExperimentsPanel
     from openbench.gui.panels.filters_panel import FiltersPanel
     from openbench.gui.panels.header import HeaderBar
+    from openbench.gui.panels.instrument_setup_panel import InstrumentSetupPanel
     from openbench.gui.panels.instruments_panel import InstrumentsPanel
     from openbench.gui.panels.live_plot_panel import LivePlotPanel
     from openbench.gui.panels.sidebar import SidebarPanel
@@ -27,6 +28,7 @@ try:
         "ExperimentsPanel",
         "FiltersPanel",
         "HeaderBar",
+        "InstrumentSetupPanel",
         "InstrumentsPanel",
         "LivePlotPanel",
         "SidebarPanel",
