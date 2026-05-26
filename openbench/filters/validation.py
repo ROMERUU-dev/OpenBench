@@ -99,8 +99,8 @@ class FilterValidator:
         The poles stored in ``DesignResult.poles`` are the physical (already
         frequency-scaled) analog poles in rad/s.  This method constructs the
         analog transfer function H(s) = k / ∏(s − pᵢ) with ``k`` chosen so
-        that the passband reference gain is 0 dB, then evaluates |H(jω)| and
-        ∠H(jω) at the requested frequencies.
+        that the passband reference gain is 0 dB, then evaluates ``|H(jω)|`` and
+        ``∠H(jω)`` at the requested frequencies.
 
         Bandpass and bandstop approximations use the lowpass-equivalent
         magnitude response; a warning is logged when the approximation is

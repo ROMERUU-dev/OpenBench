@@ -72,7 +72,7 @@ class ChuaAdmittanceSweepConfig:
             in siemens. Negative value represents outer negative resistance
             (default −0.409 mS, classic Chua parameters).
         simulation_bp_v: Chua diode breakpoint voltage Bp in volts. Bias
-            voltages |V| < Bp fall in the inner segment; |V| >= Bp in outer.
+            voltages ``|V| < Bp`` fall in the inner segment; ``|V| >= Bp`` in outer.
         simulation_cpar_f: Parasitic parallel capacitance of the simulated
             Chua element in farads. Adds a positive susceptance component to
             the simulated admittance.
@@ -112,12 +112,12 @@ class ChuaAdmittancePoint:
         frequency_hz: SR860 AC reference frequency in hertz.
         z_real_ohm: Real part of the small-signal impedance in ohms.
         z_imag_ohm: Imaginary part of the small-signal impedance in ohms.
-        magnitude_ohm: Impedance magnitude |Z| in ohms.
+        magnitude_ohm: Impedance magnitude ``|Z|`` in ohms.
         phase_deg: Impedance phase angle in degrees.
-        admittance_s: Admittance magnitude |Y| = 1/|Z| in siemens.
-        conductance_s: Real part of admittance G = R/|Z|² in siemens.
+        admittance_s: Admittance magnitude ``|Y| = 1/|Z|`` in siemens.
+        conductance_s: Real part of admittance ``G = R/|Z|²`` in siemens.
             Negative values indicate a negative-resistance operating region.
-        susceptance_s: Imaginary part of admittance B = −X/|Z|² in siemens.
+        susceptance_s: Imaginary part of admittance ``B = −X/|Z|²`` in siemens.
         metadata: Backend-specific raw details preserved from the SR860
             measurement (X/Y voltages, backend tag, etc.).
     """
@@ -424,7 +424,8 @@ class ChuaAdmittanceSweep(BaseExperiment):
     def _chua_dc_current(self, bias_v: float) -> float:
         """Approximate DC operating current from the Chua diode i-V model.
 
-        Uses the integrated piecewise-linear i-V characteristic:
+        Uses the integrated piecewise-linear i-V characteristic::
+
             i(V) = Gb·V + 0.5·(Ga−Gb)·(|V+Bp| − |V−Bp|)
 
         Args:

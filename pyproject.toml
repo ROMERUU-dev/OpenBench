@@ -45,6 +45,9 @@ dev = [
     "black>=23.0",
     "mypy>=1.5",
 ]
+docs = [
+    "sphinx>=7.2",
+]
 hardware = [
     "pyvisa-py>=0.7",
     "pyusb>=1.2",
