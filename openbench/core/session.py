@@ -506,9 +506,9 @@ class MeasurementSession:
 
         session_path = self._require_path()
         try:
-            manifest_path = str(artifact_path.relative_to(session_path))
+            manifest_path = artifact_path.relative_to(session_path).as_posix()
         except ValueError:
-            manifest_path = str(artifact_path.resolve())
+            manifest_path = artifact_path.resolve().as_posix()
 
         artifact = SessionArtifact(
             name=name or artifact_path.name,

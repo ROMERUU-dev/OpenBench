@@ -40,7 +40,13 @@ from openbench.core.interfaces import (
 
 logger = logging.getLogger(__name__)
 
-_LIB_ROOT = Path.home() / "SRC_SR860_GUI"
+# Candidate directory names for the SR860 project, tried in order.
+# Linux installs often use "SRC_SR860_GUI"; Windows clones are typically
+# named "sr860-impedance-workbench" (matching the GitHub repository name).
+_LIB_CANDIDATES: list[Path] = [
+    Path.home() / "SRC_SR860_GUI",
+    Path.home() / "sr860-impedance-workbench",
+]
 
 # SR860 frequency limits (hardware spec)
 _SR860_MIN_FREQ_HZ = 1e-3
@@ -60,21 +66,33 @@ _TC_TABLE: list[float] = [
 # ---------------------------------------------------------------------------
 
 
+def _find_lib_root() -> Path | None:
+    """Return the first candidate directory that exists, or ``None``."""
+    for candidate in _LIB_CANDIDATES:
+        if candidate.is_dir():
+            return candidate
+    return None
+
+
 def _ensure_lib_on_path() -> bool:
-    """Insert the SRC_SR860_GUI source root into ``sys.path`` when present.
+    """Insert the SR860 source root into ``sys.path`` when present.
 
     Returns:
-        ``True`` when the directory exists and is on ``sys.path``.
+        ``True`` when a candidate directory exists and is on ``sys.path``.
     """
-    lib = str(_LIB_ROOT)
+    lib_root = _find_lib_root()
+    if lib_root is None:
+        logger.warning(
+            "SR860 library not found; tried: %s",
+            ", ".join(str(p) for p in _LIB_CANDIDATES),
+        )
+        return False
+    lib = str(lib_root)
     if lib in sys.path:
         return True
-    if _LIB_ROOT.is_dir():
-        sys.path.insert(0, lib)
-        logger.debug("Added SRC_SR860_GUI to sys.path: %s", lib)
-        return True
-    logger.warning("SRC_SR860_GUI not found at %s", _LIB_ROOT)
-    return False
+    sys.path.insert(0, lib)
+    logger.debug("Added SR860 lib to sys.path: %s", lib)
+    return True
 
 
 def _import_sr860_controller() -> Any:
@@ -87,9 +105,10 @@ def _import_sr860_controller() -> Any:
         ImportError: When the library directory is absent or the import fails.
     """
     if not _ensure_lib_on_path():
+        candidates = ", ".join(str(p) for p in _LIB_CANDIDATES)
         raise ImportError(
-            f"SRC_SR860_GUI not found at {_LIB_ROOT}. "
-            "Clone the project there or use simulate=True."
+            f"SR860 library not found; tried: {candidates}. "
+            "Clone the project to one of those paths or use simulate=True."
         )
     from barrido import SR860Controller  # type: ignore[import]
 

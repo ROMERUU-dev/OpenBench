@@ -385,7 +385,8 @@ class KeysightE36312ABackend(IDCSupply):
             model: Mock model name recognized by the library's ``MockVisaResource``.
         """
         if self._supply is not None and self.simulate:
-            self._supply.set_mock_model(model)
+            if hasattr(self._supply, "set_mock_model"):
+                self._supply.set_mock_model(model)
 
     # ------------------------------------------------------------------
     # Internal helpers
