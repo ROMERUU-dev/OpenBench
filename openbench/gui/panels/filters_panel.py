@@ -30,7 +30,7 @@ except ImportError:
     logger.warning("sofia_filter_studio not available; filter design disabled")
 
 _KIND_LABELS = ["Low-Pass", "High-Pass", "Band-Pass", "Band-Stop"]
-_APPROX_LABELS = ["Butterworth", "Chebyshev", "Elliptic", "Bessel"]
+_APPROX_LABELS = ["Butterworth", "Chebyshev I"]
 _TOPOLOGY_LABELS = ["Sallen-Key", "MFB"]
 
 
@@ -433,9 +433,7 @@ class FiltersPanel(ContentPanel):
         kind = {"Low-Pass": FilterKind.LOWPASS, "High-Pass": FilterKind.HIGHPASS}[kind_label]
         approx = {
             "Butterworth": Approximation.BUTTERWORTH,
-            "Chebyshev": Approximation.CHEBYSHEV,
-            "Elliptic": Approximation.ELLIPTIC,
-            "Bessel": Approximation.BESSEL,
+            "Chebyshev I": Approximation.CHEBYSHEV_I,
         }[approx_label]
         topology = {"Sallen-Key": Topology.SALLEN_KEY, "MFB": Topology.MFB}[topology_label]
 
