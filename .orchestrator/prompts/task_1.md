@@ -10,7 +10,7 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Generar docs/architecture.md con diagramas**
+**Generar docs/api/ con autodoc de cada módulo**
 
 ## Fase actual
 `8-docs`
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[8-docs] Generar docs/architecture.md con diagramas
+[8-docs] Generar docs/api/ con autodoc de cada módulo
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
