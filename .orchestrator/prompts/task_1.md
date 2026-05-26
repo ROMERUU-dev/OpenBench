@@ -10,10 +10,10 @@ OpenBench es una plataforma de orquestación de instrumentos de laboratorio que:
 - Está orientada al deadline crítico del lunes (lab session)
 
 ## Tarea específica
-**Implementar SessionHistoryPanel para revisar mediciones**
+**Generar docs/architecture.md con diagramas**
 
 ## Fase actual
-`7-gui`
+`8-docs`
 
 ## Requisitos
 1. Implementa la tarea completamente y profesionalmente
@@ -36,7 +36,7 @@ pytest tests/ -x --tb=short
 ## Commit
 Cuando termines, haz commit con formato:
 ```
-[7-gui] Implementar SessionHistoryPanel para revisar mediciones
+[8-docs] Generar docs/architecture.md con diagramas
 
 - Detalle de archivo 1 creado/modificado
 - Detalle de archivo 2 creado/modificado
